@@ -1,0 +1,15 @@
+import XCTest
+@testable import Asura
+
+final class AsuraTests: XCTestCase {
+    func testExample() {
+        // This is an example of a functional test case.
+        // Use XCTAssert and related functions to verify your tests produce the correct
+        // results.
+        XCTAssertEqual(Asura().text, "Hello, World!")
+    }
+
+    static var allTests = [
+        ("testExample", testExample),
+    ]
+}
