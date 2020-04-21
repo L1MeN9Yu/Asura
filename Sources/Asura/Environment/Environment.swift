@@ -4,7 +4,7 @@
 //
 
 import Foundation
-import CLMDB
+import Asura_LMDB
 
 public class Environment {
     internal private(set) var pointer: OpaquePointer?

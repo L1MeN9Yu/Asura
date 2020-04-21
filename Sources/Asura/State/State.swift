@@ -4,7 +4,7 @@
 //
 
 import Foundation
-import CLMDB
+import Asura_LMDB
 
 public struct State {
     public let pageSize: UInt32

@@ -4,7 +4,7 @@
 //
 
 import Foundation
-import CLMDB
+import Asura_LMDB
 
 public extension Environment {
     struct Flags: OptionSet {

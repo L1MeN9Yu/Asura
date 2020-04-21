@@ -4,7 +4,7 @@
 //
 
 import Foundation
-import CLMDB
+import Asura_LMDB
 
 public extension Database {
     /// These flags can be passed when putting values into the database.

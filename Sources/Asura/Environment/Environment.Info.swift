@@ -3,7 +3,7 @@
 // Copyright (c) 2020 Mengyu Li. All rights reserved.
 //
 
-import CLMDB
+import Asura_LMDB
 
 public extension Environment {
     struct Info {

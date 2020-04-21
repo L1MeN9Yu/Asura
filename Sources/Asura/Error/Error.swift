@@ -4,7 +4,7 @@
 //
 
 import Foundation
-import CLMDB
+import Asura_LMDB
 
 public enum Error: Swift.Error {
     // LMDB defined errors.

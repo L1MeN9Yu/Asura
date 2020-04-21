@@ -3,7 +3,7 @@
 // Copyright (c) 2020 Mengyu Li. All rights reserved.
 //
 
-import CLMDB
+import Asura_LMDB
 
 public struct Version { private init() {} }
 

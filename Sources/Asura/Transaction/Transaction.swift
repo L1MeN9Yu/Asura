@@ -4,7 +4,7 @@
 //
 
 import Foundation
-import CLMDB
+import Asura_LMDB
 
 /// All read and write operations on the database happen inside a Transaction.
 public struct Transaction {
