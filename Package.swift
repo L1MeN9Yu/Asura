@@ -8,7 +8,7 @@ let package = Package(
         products: [
             // Products define the executables and libraries produced by a package, and make them visible to other packages.
             .library(name: "Asura", type: .dynamic, targets: ["Asura"]),
-            .library(name: "Asura", type: .static, targets: ["Asura"]),
+            .library(name: "AsuraStatic", type: .static, targets: ["Asura"]),
         ],
         targets: [
             // Targets are the basic building blocks of a package. A target can define a module or a test suite.
