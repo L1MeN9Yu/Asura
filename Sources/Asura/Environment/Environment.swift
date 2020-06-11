@@ -83,7 +83,7 @@ public extension Environment {
             }
             return Info(envinfo: env_info_p.pointee)
         } catch {
-            Logger.error(message: "\(error)")
+            Logger.error("\(error)")
             return nil
         }
     }
@@ -98,7 +98,7 @@ public extension Environment {
             })
             return State(stat: statPointer.pointee)
         } catch {
-            Logger.error(message: "\(error)")
+            Logger.error("\(error)")
             return nil
         }
     }

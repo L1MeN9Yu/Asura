@@ -158,7 +158,7 @@ public extension Database {
             })
             return State(stat: statPointer.pointee)
         } catch {
-            Logger.error(message: "\(error)")
+            Logger.error("\(error)")
             return nil
         }
     }
