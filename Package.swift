@@ -4,18 +4,16 @@
 import PackageDescription
 
 let package = Package(
-        name: "Asura",
-        products: [
-            // Products define the executables and libraries produced by a package, and make them visible to other packages.
-            .library(name: "Asura", targets: ["Asura"]),
-            .library(name: "Asura.Dynamic", type: .dynamic, targets: ["Asura"]),
-            .library(name: "Asura.Static", type: .static, targets: ["Asura"]),
-        ],
-        targets: [
-            // Targets are the basic building blocks of a package. A target can define a module or a test suite.
-            // Targets can depend on other targets in this package, and on products in packages which this package depends on.
-            .target(name: "Asura.LMDB"),
-            .target(name: "Asura", dependencies: ["Asura.LMDB"]),
-            .testTarget(name: "AsuraTests", dependencies: ["Asura"]),
-        ]
+    name: "Asura",
+    products: [
+        // Products define the executables and libraries produced by a package, and make them visible to other packages.
+        .library(name: "LMDB", targets: ["LMDB"]),
+    ],
+    targets: [
+        // Targets are the basic building blocks of a package. A target can define a module or a test suite.
+        // Targets can depend on other targets in this package, and on products in packages which this package depends on.
+        .target(name: "CLMDB"),
+        .target(name: "LMDB", dependencies: ["CLMDB"]),
+        .testTarget(name: "LMDBTest", dependencies: ["LMDB"]),
+    ]
 )
