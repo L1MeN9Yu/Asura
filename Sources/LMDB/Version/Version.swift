@@ -5,7 +5,7 @@
 
 import CLMDB
 
-public struct Version { private init() {} }
+public enum Version {}
 
 public extension Version {
     static let string = {

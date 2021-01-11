@@ -10,28 +10,31 @@ import Foundation
 /// The database can either be named (if maxDBs > 0 on the environment) or
 /// it can be the single anonymous/unnamed database inside the environment.
 public class Database {
-    private var handle: MDB_dbi = 0
+    private(set) var id: MDB_dbi = 0
     private let environment: Environment
 
     /// - throws: an error if operation fails. See `Error`.
-    internal init(environment: Environment, name: String?, flags: Flags = []) throws {
+    init(environment: Environment, name: String?, flags: Flags = []) throws {
         self.environment = environment
 
         try Transaction(environment: environment) { transaction -> Transaction.Action in
-            let openStatus = mdb_dbi_open(transaction.pointer, name?.cString(using: .utf8), UInt32(flags.rawValue), &handle)
-            guard openStatus == 0 else {
-                throw Error(returnCode: openStatus)
-            }
+            let openStatus = mdb_dbi_open(transaction.pointer, name?.cString(using: .utf8), UInt32(flags.rawValue), &id)
+            guard openStatus == 0 else { throw Error(returnCode: openStatus) }
 
             // Commit the open transaction.
             return .commit
         }
     }
 
+    init(id: MDB_dbi, environment: Environment) {
+        self.id = id
+        self.environment = environment
+    }
+
     deinit {
         // Close the database.
         // http://lmdb.tech/doc/group__mdb.html#ga52dd98d0c542378370cd6b712ff961b5
-        mdb_dbi_close(environment.pointer, handle)
+        mdb_dbi_close(environment.pointer, id)
     }
 }
 
@@ -55,7 +58,7 @@ public extension Database {
             var dataVal = MDB_val()
             var getStatus: Int32 = 0
             try Transaction(environment: environment, flags: .readOnly) { transaction -> Transaction.Action in
-                getStatus = mdb_get(transaction.pointer, handle, &keyVal, &dataVal)
+                getStatus = mdb_get(transaction.pointer, id, &keyVal, &dataVal)
                 return .commit
             }
 
@@ -96,7 +99,7 @@ public extension Database {
                 var putStatus: Int32 = 0
 
                 try Transaction(environment: self.environment) { transaction -> Transaction.Action in
-                    putStatus = mdb_put(transaction.pointer, self.handle, &keyVal, &valueVal, UInt32(flags.rawValue))
+                    putStatus = mdb_put(transaction.pointer, self.id, &keyVal, &valueVal, UInt32(flags.rawValue))
                     return .commit
                 }
 
@@ -114,7 +117,7 @@ public extension Database {
             let keyPointer = keyBufferPointer.baseAddress
             var keyVal = MDB_val(mv_size: keyBufferPointer.count, mv_data: keyPointer)
             try Transaction(environment: environment) { transaction -> Transaction.Action in
-                mdb_del(transaction.pointer, handle, &keyVal, nil)
+                mdb_del(transaction.pointer, id, &keyVal, nil)
                 return .commit
             }
         }
@@ -126,7 +129,7 @@ public extension Database {
     func empty() throws {
         var dropStatus: Int32 = 0
         try Transaction(environment: environment) { transaction -> Transaction.Action in
-            dropStatus = mdb_drop(transaction.pointer, handle, 0)
+            dropStatus = mdb_drop(transaction.pointer, id, 0)
             return .commit
         }
 
@@ -140,7 +143,7 @@ public extension Database {
     func drop() throws {
         var dropStatus: Int32 = 0
         try Transaction(environment: environment) { transaction -> Transaction.Action in
-            dropStatus = mdb_drop(transaction.pointer, handle, 1)
+            dropStatus = mdb_drop(transaction.pointer, id, 1)
             return .commit
         }
         guard dropStatus == 0 else { throw Error(returnCode: dropStatus) }
@@ -154,7 +157,7 @@ public extension Database {
         let statPointer = UnsafeMutablePointer<MDB_stat>.allocate(capacity: MemoryLayout<MDB_stat>.size)
         defer { statPointer.deallocate() }
         try Transaction(environment: environment, action: { transaction -> Transaction.Action in
-            mdb_stat(transaction.pointer, handle, statPointer)
+            mdb_stat(transaction.pointer, id, statPointer)
             return .commit
         })
         return State(stat: statPointer.pointee)
@@ -163,5 +166,11 @@ public extension Database {
     /// The number of entries contained in the database.
     func count() throws -> Int {
         try state().entries
+    }
+}
+
+extension Database: Equatable {
+    public static func ==(lhs: Database, rhs: Database) -> Bool {
+        lhs.environment.pointer == rhs.environment.pointer && lhs.id == rhs.id
     }
 }

@@ -7,8 +7,8 @@ import CLMDB
 import Foundation
 
 public class Environment {
-    internal private(set) var pointer: OpaquePointer?
-    internal private(set) var flags: Flags
+    private(set) var pointer: OpaquePointer
+    private(set) var flags: Flags
 
     /// Initializes a new environment instance. An environment may contain 0 or more databases.
     /// - parameter path: The path to the folder in which the environment should be created. The folder must exist and be writeable.
@@ -21,9 +21,11 @@ public class Environment {
         self.flags = flags
 
         // Prepare the environment.
-        let envCreateStatus = mdb_env_create(&pointer)
-
+        var pointerOptional: OpaquePointer? = nil
+        let envCreateStatus = mdb_env_create(&pointerOptional)
         guard envCreateStatus == 0 else { throw Error(returnCode: envCreateStatus) }
+        guard let pointer = pointerOptional else { throw Error.nullPointer }
+        self.pointer = pointer
 
         // Set the maximum number of named databases that can be opened in the environment.
         if let maxDBs = maxDBs {
@@ -52,10 +54,15 @@ public class Environment {
         guard envOpenStatus == 0 else { throw Error(returnCode: envOpenStatus) }
     }
 
-    deinit {
-        // Close the handle when environment is deallocated.
-        mdb_env_close(pointer)
+    internal init(pointer: OpaquePointer) throws {
+        self.pointer = pointer
+        var flags: UInt32 = 0
+        let ret = mdb_env_get_flags(pointer, &flags)
+        guard ret == 0 else { throw Error(returnCode: ret) }
+        self.flags = Environment.Flags(rawValue: Int32(flags))
     }
+
+    deinit { mdb_env_close(pointer) }
 }
 
 // MARK: - Database
@@ -92,5 +99,11 @@ public extension Environment {
             return .commit
         })
         return State(stat: statPointer.pointee)
+    }
+}
+
+extension Environment: Equatable {
+    public static func ==(lhs: Environment, rhs: Environment) -> Bool {
+        lhs.pointer == rhs.pointer
     }
 }

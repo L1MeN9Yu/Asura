@@ -36,6 +36,9 @@ public enum Error: Swift.Error {
     case ioError
     case accessViolation
 
+    // FFI Error
+    case nullPointer
+
     case other(returnCode: Int32)
 
     init(returnCode: Int32) {
@@ -125,6 +128,8 @@ extension Error: CustomStringConvertible {
             return String(cString: mdb_strerror(EIO))
         case .accessViolation:
             return String(cString: mdb_strerror(EACCES))
+        case .nullPointer:
+            return "POINTER RETURN NULL"
         case .other(returnCode: let returnCode):
             return "KNOWN ERROR : \(returnCode)"
         }
