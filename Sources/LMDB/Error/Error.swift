@@ -28,7 +28,6 @@ public enum Error: Swift.Error {
     case badTransaction
     case badValueSize
     case badDBI
-    case problem
 
     // OS errors
     case invalidParameter
@@ -69,6 +68,65 @@ public enum Error: Swift.Error {
         case EACCES: self = .accessViolation
 
         default: self = .other(returnCode: returnCode)
+        }
+    }
+}
+
+extension Error: CustomStringConvertible {
+    public var description: String {
+        switch self {
+        case .keyExists:
+            return String(cString: mdb_strerror(MDB_KEYEXIST))
+        case .notFound:
+            return String(cString: mdb_strerror(MDB_NOTFOUND))
+        case .pageNotFound:
+            return String(cString: mdb_strerror(MDB_PAGE_NOTFOUND))
+        case .corrupted:
+            return String(cString: mdb_strerror(MDB_CORRUPTED))
+        case .panic:
+            return String(cString: mdb_strerror(MDB_PANIC))
+        case .versionMismatch:
+            return String(cString: mdb_strerror(MDB_VERSION_MISMATCH))
+        case .invalid:
+            return String(cString: mdb_strerror(MDB_INVALID))
+        case .mapFull:
+            return String(cString: mdb_strerror(MDB_MAP_FULL))
+        case .dbsFull:
+            return String(cString: mdb_strerror(MDB_DBS_FULL))
+        case .readersFull:
+            return String(cString: mdb_strerror(MDB_READERS_FULL))
+        case .tlsFull:
+            return String(cString: mdb_strerror(MDB_TLS_FULL))
+        case .txnFull:
+            return String(cString: mdb_strerror(MDB_TXN_FULL))
+        case .cursorFull:
+            return String(cString: mdb_strerror(MDB_CURSOR_FULL))
+        case .pageFull:
+            return String(cString: mdb_strerror(MDB_PAGE_FULL))
+        case .mapResized:
+            return String(cString: mdb_strerror(MDB_MAP_RESIZED))
+        case .incompatible:
+            return String(cString: mdb_strerror(MDB_INCOMPATIBLE))
+        case .badReaderSlot:
+            return String(cString: mdb_strerror(MDB_BAD_RSLOT))
+        case .badTransaction:
+            return String(cString: mdb_strerror(MDB_BAD_TXN))
+        case .badValueSize:
+            return String(cString: mdb_strerror(MDB_BAD_VALSIZE))
+        case .badDBI:
+            return String(cString: mdb_strerror(MDB_BAD_DBI))
+        case .invalidParameter:
+            return String(cString: mdb_strerror(EINVAL))
+        case .outOfDiskSpace:
+            return String(cString: mdb_strerror(ENOSPC))
+        case .outOfMemory:
+            return String(cString: mdb_strerror(ENOMEM))
+        case .ioError:
+            return String(cString: mdb_strerror(EIO))
+        case .accessViolation:
+            return String(cString: mdb_strerror(EACCES))
+        case .other(returnCode: let returnCode):
+            return "KNOWN ERROR : \(returnCode)"
         }
     }
 }
