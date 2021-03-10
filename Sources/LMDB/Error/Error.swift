@@ -30,6 +30,8 @@ public enum Error: Swift.Error {
     case badDBI
 
     // OS errors
+    case operationNotPermitted
+    case noSuchFileOrDirectory
     case invalidParameter
     case outOfDiskSpace
     case outOfMemory
@@ -64,6 +66,8 @@ public enum Error: Swift.Error {
         case MDB_BAD_VALSIZE: self = .badValueSize
         case MDB_BAD_DBI: self = .badDBI
 
+        case EPERM: self = .operationNotPermitted
+        case ENOENT: self = .noSuchFileOrDirectory
         case EINVAL: self = .invalidParameter
         case ENOSPC: self = .outOfDiskSpace
         case ENOMEM: self = .outOfMemory
@@ -118,6 +122,10 @@ extension Error: CustomStringConvertible {
             return String(cString: mdb_strerror(MDB_BAD_VALSIZE))
         case .badDBI:
             return String(cString: mdb_strerror(MDB_BAD_DBI))
+        case .operationNotPermitted:
+            return String(cString: mdb_strerror(EPERM))
+        case .noSuchFileOrDirectory:
+            return String(cString: mdb_strerror(ENOENT))
         case .invalidParameter:
             return String(cString: mdb_strerror(EINVAL))
         case .outOfDiskSpace:
@@ -131,7 +139,13 @@ extension Error: CustomStringConvertible {
         case .nullPointer:
             return "POINTER RETURN NULL"
         case .other(returnCode: let returnCode):
-            return "KNOWN ERROR : \(returnCode)"
+            let possible = String(cString: mdb_strerror(returnCode))
+            switch possible.isEmpty {
+            case true:
+                return "UNKNOWN ERROR : \(returnCode)"
+            case false:
+                return possible
+            }
         }
     }
 }

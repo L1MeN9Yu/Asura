@@ -1,4 +1,5 @@
 @testable import LMDB
+@testable import CLMDB
 import XCTest
 
 final class LMDBTests: XCTestCase {
