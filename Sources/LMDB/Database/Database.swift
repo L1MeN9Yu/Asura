@@ -3,7 +3,7 @@
 // Copyright (c) 2020 Mengyu Li. All rights reserved.
 //
 
-import CLMDB
+@_implementationOnly import CLMDB
 import Foundation
 
 /// A database contained in an environment.
@@ -19,7 +19,7 @@ public class Database {
 
         try Transaction(environment: environment) { transaction -> Transaction.Action in
             let openStatus = mdb_dbi_open(transaction.pointer, name?.cString(using: .utf8), UInt32(flags.rawValue), &id)
-            guard openStatus == 0 else { throw Error(returnCode: openStatus) }
+            guard openStatus == 0 else { throw LMDBError(returnCode: openStatus) }
 
             // Commit the open transaction.
             return .commit
@@ -63,7 +63,7 @@ public extension Database {
             }
 
             guard getStatus != MDB_NOTFOUND else { return nil }
-            guard getStatus == 0 else { throw Error(returnCode: getStatus) }
+            guard getStatus == 0 else { throw LMDBError(returnCode: getStatus) }
             let data = Data(bytes: dataVal.mv_data, count: dataVal.mv_size)
 
             return V(data: data)
@@ -103,7 +103,7 @@ public extension Database {
                     return .commit
                 }
 
-                guard putStatus == 0 else { throw Error(returnCode: putStatus) }
+                guard putStatus == 0 else { throw LMDBError(returnCode: putStatus) }
             }
         }
     }
@@ -133,7 +133,7 @@ public extension Database {
             return .commit
         }
 
-        guard dropStatus == 0 else { throw Error(returnCode: dropStatus) }
+        guard dropStatus == 0 else { throw LMDBError(returnCode: dropStatus) }
     }
 
     /// Drops the database, deleting it (along with all it's contents) from the environment.
@@ -146,7 +146,7 @@ public extension Database {
             dropStatus = mdb_drop(transaction.pointer, id, 1)
             return .commit
         }
-        guard dropStatus == 0 else { throw Error(returnCode: dropStatus) }
+        guard dropStatus == 0 else { throw LMDBError(returnCode: dropStatus) }
     }
 }
 

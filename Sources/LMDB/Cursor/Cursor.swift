@@ -3,7 +3,7 @@
 //
 
 import Foundation
-import CLMDB
+@_implementationOnly import CLMDB
 
 // MARK: - Cursor
 public class Cursor {
@@ -12,8 +12,8 @@ public class Cursor {
     public init(transaction: Transaction, database: Database) throws {
         var pointerOptional: OpaquePointer? = nil
         let open_result = mdb_cursor_open(transaction.pointer, database.id, &pointerOptional)
-        guard open_result == 0 else { throw Error(returnCode: open_result) }
-        guard let pointer = pointerOptional else { throw Error.nullPointer }
+        guard open_result == 0 else { throw LMDBError(returnCode: open_result) }
+        guard let pointer = pointerOptional else { throw LMDBError.nullPointer }
         self.pointer = pointer
     }
 
@@ -24,14 +24,14 @@ public class Cursor {
 public extension Cursor {
     func renew(transaction: Transaction) throws {
         let open_result = mdb_cursor_renew(transaction.pointer, pointer)
-        guard open_result == 0 else { throw Error(returnCode: open_result) }
+        guard open_result == 0 else { throw LMDBError(returnCode: open_result) }
     }
 }
 
 // MARK: - Getter
 public extension Cursor {
     func transaction() throws -> Transaction {
-        guard let transactionPointer = mdb_cursor_txn(pointer) else { throw Error.nullPointer }
+        guard let transactionPointer = mdb_cursor_txn(pointer) else { throw LMDBError.nullPointer }
         return Transaction(pointer: transactionPointer)
     }
 

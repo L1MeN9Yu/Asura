@@ -3,10 +3,9 @@
 // Copyright (c) 2020 Mengyu Li. All rights reserved.
 //
 
-import CLMDB
-import Foundation
+@_implementationOnly import CLMDB
 
-public enum Error: Swift.Error {
+public enum LMDBError: Error {
     // LMDB defined errors.
     case keyExists
     case notFound
@@ -79,7 +78,7 @@ public enum Error: Swift.Error {
     }
 }
 
-extension Error: CustomStringConvertible {
+extension LMDBError: CustomStringConvertible {
     public var description: String {
         switch self {
         case .keyExists:

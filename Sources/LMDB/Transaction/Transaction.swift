@@ -3,7 +3,7 @@
 // Copyright (c) 2020 Mengyu Li. All rights reserved.
 //
 
-import CLMDB
+@_implementationOnly import CLMDB
 import Foundation
 
 /// All read and write operations on the database happen inside a Transaction.
@@ -25,8 +25,8 @@ public struct Transaction {
         // http://lmdb.tech/doc/group__mdb.html#gad7ea55da06b77513609efebd44b26920
         var pointerOptional: OpaquePointer? = nil
         let txnStatus = mdb_txn_begin(environment.pointer, parent?.pointer, UInt32(flags.rawValue), &pointerOptional)
-        guard txnStatus == 0 else { throw Error(returnCode: txnStatus) }
-        guard let pointer = pointerOptional else { throw Error.nullPointer }
+        guard txnStatus == 0 else { throw LMDBError(returnCode: txnStatus) }
+        guard let pointer = pointerOptional else { throw LMDBError.nullPointer }
         self.pointer = pointer
 
         // Run the closure inside a do/catch block, so we can abort the transaction if an error is thrown from the closure.
@@ -37,7 +37,7 @@ public struct Transaction {
                 mdb_txn_abort(pointer)
             case .commit:
                 let commitStatus = mdb_txn_commit(pointer)
-                guard commitStatus == 0 else { throw Error(returnCode: commitStatus) }
+                guard commitStatus == 0 else { throw LMDBError(returnCode: commitStatus) }
             }
         } catch {
             mdb_txn_abort(pointer)
@@ -52,7 +52,7 @@ public struct Transaction {
 
 extension Transaction {
     func environment() throws -> Environment {
-        guard let environmentPointer = mdb_txn_env(pointer) else { throw Error.nullPointer }
+        guard let environmentPointer = mdb_txn_env(pointer) else { throw LMDBError.nullPointer }
         return try Environment(pointer: environmentPointer)
     }
 }
