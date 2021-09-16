@@ -13,29 +13,30 @@ public class Database {
 
     private let writeOption: WriteOption
     private let readOption: ReadOption
-    private var lastErrorPtr: UnsafeMutablePointer<Int8>? = nil
 
     public init(path: String, option: Option = .default, writeOption: WriteOption = .default, readOption: ReadOption = .default) throws {
-        self.path = path
-
-        guard let pointer = leveldb_open(option.pointer, path, &lastErrorPtr) else {
-            var message: String? = nil
-            if let error = lastErrorPtr {
-                message = String(cString: error)
+        func create() throws -> OpaquePointer {
+            var errorPointer: UnsafeMutablePointer<Int8>? = nil
+            guard let pointer = leveldb_open(option.pointer, path, &errorPointer) else {
+                var message: String? = nil
+                if let error = errorPointer {
+                    defer { leveldb_free(error) }
+                    message = String(cString: error)
+                }
+                throw LevelDBError.open(message: message)
             }
-            throw LevelDBError.open(message: message)
+            return pointer
         }
 
-        self.pointer = pointer
+        pointer = try create()
+
+        self.path = path
         self.writeOption = writeOption
         self.readOption = readOption
     }
 
     deinit {
         leveldb_close(pointer)
-        if let e = lastErrorPtr {
-            leveldb_free(e)
-        }
     }
 }
 
@@ -47,10 +48,11 @@ public extension Database {
                 throw LevelDBError.put(message: nil)
             }
 
-            leveldb_put(pointer, writeOption.pointer, key, key.count, unsafePointer, value.count, &lastErrorPtr)
-
-            if let error = lastErrorPtr {
+            var errorPointer: UnsafeMutablePointer<Int8>? = nil
+            leveldb_put(pointer, writeOption.pointer, key, key.count, unsafePointer, value.count, &errorPointer)
+            if let error = errorPointer {
                 let message = String(cString: error)
+                defer { leveldb_free(error) }
                 throw LevelDBError.put(message: message)
             }
         }
@@ -58,9 +60,11 @@ public extension Database {
 
     func get(key: String) throws -> Data? {
         var valueLength: Int = 0
-        guard let dataPtr = leveldb_get(pointer, readOption.pointer, key, key.count, &valueLength, &lastErrorPtr) else {
-            if let error = lastErrorPtr {
+        var errorPointer: UnsafeMutablePointer<Int8>? = nil
+        guard let dataPtr = leveldb_get(pointer, readOption.pointer, key, key.count, &valueLength, &errorPointer) else {
+            if let error = errorPointer {
                 let message = String(cString: error)
+                defer { leveldb_free(error) }
                 throw LevelDBError.get(message: message)
             }
             return nil
@@ -73,17 +77,20 @@ public extension Database {
     }
 
     func delete(key: String) throws {
-        leveldb_delete(pointer, writeOption.pointer, key, key.count, &lastErrorPtr)
-        if let error = lastErrorPtr {
+        var errorPointer: UnsafeMutablePointer<Int8>? = nil
+        leveldb_delete(pointer, writeOption.pointer, key, key.count, &errorPointer)
+        if let error = errorPointer {
             let message = String(cString: error)
             throw LevelDBError.delete(message: message)
         }
     }
 
     func writeBatch(_ batch: WriteBatch) throws {
-        leveldb_write(pointer, writeOption.pointer, batch.pointer, &lastErrorPtr)
-        if let error = lastErrorPtr {
+        var errorPointer: UnsafeMutablePointer<Int8>? = nil
+        leveldb_write(pointer, writeOption.pointer, batch.pointer, &errorPointer)
+        if let error = errorPointer {
             let message = String(cString: error)
+            defer { leveldb_free(error) }
             throw LevelDBError.writeBatch(message: message)
         }
     }
@@ -131,9 +138,11 @@ public extension Database {
             go()
         }
 
-        leveldb_iter_get_error(iterator, &lastErrorPtr)
-        if let error = lastErrorPtr {
+        var errorPointer: UnsafeMutablePointer<Int8>? = nil
+        leveldb_iter_get_error(iterator, &errorPointer)
+        if let error = errorPointer {
             let message = String(cString: error)
+            defer { leveldb_free(error) }
             throw LevelDBError.iterator(message: message)
         }
     }
