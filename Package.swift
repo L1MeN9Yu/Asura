@@ -63,6 +63,7 @@ let package = Package(
             .headerSearchPath("include/"),
         ]),
         .target(name: "LevelDB", dependencies: ["CLevelDB"]),
+        .testTarget(name: "LevelDBTests", dependencies: ["LevelDB"])
     ],
     cLanguageStandard: CLanguageStandard.c11,
     cxxLanguageStandard: CXXLanguageStandard.gnucxx14
