@@ -2,7 +2,7 @@
 // Created by Mengyu Li on 2021/9/16.
 //
 
-import CLevelDB
+@_implementationOnly import CLevelDB
 import struct Foundation.Data
 
 public class Database {
@@ -15,7 +15,7 @@ public class Database {
     private let readOption: ReadOption
     private var lastErrorPtr: UnsafeMutablePointer<Int8>? = nil
 
-    public init(path: String, option: Option = Option.default, writeOption: WriteOption = WriteOption.default, readOption: ReadOption = ReadOption.default) throws {
+    public init(path: String, option: Option = .default, writeOption: WriteOption = .default, readOption: ReadOption = .default) throws {
         self.path = path
 
         guard let pointer = leveldb_open(option.pointer, path, &lastErrorPtr) else {

@@ -2,7 +2,7 @@
 // Created by Mengyu Li on 2021/9/16.
 //
 
-import CLevelDB
+@_implementationOnly import CLevelDB
 
 public class ReadOption {
     let pointer: OpaquePointer

@@ -2,7 +2,8 @@
 // Created by Mengyu Li on 2021/9/16.
 //
 
-import CLevelDB
+@_implementationOnly import CLevelDB
+import typealias Darwin.C.stddef.size_t
 
 public class Option {
     public let createIfMissing: Bool
@@ -33,15 +34,15 @@ public class Option {
         self.blockRestartInterval = blockRestartInterval
         self.maxFileSize = maxFileSize
 
-        self.pointer = leveldb_options_create()
-        leveldb_options_set_create_if_missing(self.pointer, self.createIfMissing.uint8)
-        leveldb_options_set_error_if_exists(self.pointer, self.errorIfExists.uint8)
-        leveldb_options_set_paranoid_checks(self.pointer, self.paranoidChecks.uint8)
-        leveldb_options_set_write_buffer_size(self.pointer, self.writeBufferSize)
-        leveldb_options_set_max_open_files(self.pointer, self.maxOpenFiles)
-        leveldb_options_set_block_size(self.pointer, self.blockSize)
-        leveldb_options_set_block_restart_interval(self.pointer, self.blockRestartInterval)
-        leveldb_options_set_max_file_size(self.pointer, self.maxFileSize)
+        pointer = leveldb_options_create()
+        leveldb_options_set_create_if_missing(pointer, self.createIfMissing.uint8)
+        leveldb_options_set_error_if_exists(pointer, self.errorIfExists.uint8)
+        leveldb_options_set_paranoid_checks(pointer, self.paranoidChecks.uint8)
+        leveldb_options_set_write_buffer_size(pointer, self.writeBufferSize)
+        leveldb_options_set_max_open_files(pointer, self.maxOpenFiles)
+        leveldb_options_set_block_size(pointer, self.blockSize)
+        leveldb_options_set_block_restart_interval(pointer, self.blockRestartInterval)
+        leveldb_options_set_max_file_size(pointer, self.maxFileSize)
     }
 
     deinit {
