@@ -28,12 +28,12 @@ public extension WriteBatch {
             guard let unsafePointer = unsafeBufferPointer.baseAddress else {
                 throw LevelDBError.put(message: nil)
             }
-            leveldb_writebatch_put(pointer, key, key.count, unsafePointer, value.count)
+            leveldb_writebatch_put(pointer, key, key.utf8.count, unsafePointer, value.count)
         }
     }
 
     func delete(key: String) {
-        leveldb_writebatch_delete(pointer, key, key.count)
+        leveldb_writebatch_delete(pointer, key, key.utf8.count)
     }
 
     func clear() {

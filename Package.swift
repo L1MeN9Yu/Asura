@@ -10,7 +10,7 @@ let package = Package(
     ],
     targets: [
         .target(name: "CLMDB"),
-        .target(name: "LMDB", dependencies: ["CLMDB"]),
+        .target(name: "LMDB", dependencies: ["CLMDB", "DataConvert"]),
         .testTarget(name: "LMDBTest", dependencies: ["LMDB"]),
 
         .target(name: "CLevelDB", exclude: [
@@ -29,9 +29,6 @@ let package = Package(
             "db/version_edit_test.cc",
             "db/version_set_test.cc",
             "db/write_batch_test.cc",
-            "issues/issue178_test.cc",
-            "issues/issue200_test.cc",
-            "issues/issue320_test.cc",
             "table/filter_block_test.cc",
             "table/table_test.cc",
             "util/arena_test.cc",
@@ -62,8 +59,11 @@ let package = Package(
             .headerSearchPath("./"),
             .headerSearchPath("include/"),
         ]),
-        .target(name: "LevelDB", dependencies: ["CLevelDB"]),
-        .testTarget(name: "LevelDBTests", dependencies: ["LevelDB"])
+        .target(name: "LevelDB", dependencies: ["CLevelDB", "DataConvert"]),
+        .testTarget(name: "LevelDBTests", dependencies: ["LevelDB"]),
+
+        .target(name: "DataConvert"),
+        .testTarget(name: "DataConvertTests", dependencies: ["DataConvert"]),
     ],
     cLanguageStandard: CLanguageStandard.c11,
     cxxLanguageStandard: CXXLanguageStandard.gnucxx14

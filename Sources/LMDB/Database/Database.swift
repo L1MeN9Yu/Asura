@@ -48,7 +48,7 @@ public extension Database {
     /// - note: You can always use `Foundation.Data` as the type. In such case, `nil` will only be returned if there is no value for the key.
     /// - throws: an error if operation fails. See `Error`.
     func get<V: DataConvertible, K: DataConvertible>(key: K) throws -> V? {
-        var keyData = key.toData
+        var keyData = try key.toData()
         return try keyData.withUnsafeMutableBytes { keyBufferPointer -> V? in
             let keyPointer = keyBufferPointer.baseAddress
             var keyVal = MDB_val(mv_size: keyBufferPointer.count, mv_data: keyPointer)
@@ -66,7 +66,7 @@ public extension Database {
             guard getStatus == 0 else { throw LMDBError(returnCode: getStatus) }
             let data = Data(bytes: dataVal.mv_data, count: dataVal.mv_size)
 
-            return V(data: data)
+            return try V(data: data)
         }
     }
 
@@ -85,8 +85,8 @@ public extension Database {
     /// - parameter flags: An optional set of flags that modify the behavior if the put operation. Default is [] (empty set).
     /// - throws: an error if operation fails. See `Error`.
     func put<V: DataConvertible, K: DataConvertible>(value: V, forKey key: K, flags: PutFlags = []) throws {
-        var keyData = key.toData
-        var valueData = value.toData
+        var keyData = try key.toData()
+        var valueData = try value.toData()
 
         try keyData.withUnsafeMutableBytes { keyBufferPointer in
             let keyPointer = keyBufferPointer.baseAddress
@@ -112,7 +112,7 @@ public extension Database {
     /// - parameter key: The key identifying the database entry to be deleted. The key must conform to `DataConvertible`. Passing an empty key will cause an error to be thrown.
     /// - throws: an error if operation fails. See `Error`.
     func deleteValue<K: DataConvertible>(forKey key: K) throws {
-        var keyData = key.toData
+        var keyData = try key.toData()
         try keyData.withUnsafeMutableBytes { keyBufferPointer in
             let keyPointer = keyBufferPointer.baseAddress
             var keyVal = MDB_val(mv_size: keyBufferPointer.count, mv_data: keyPointer)

@@ -6,9 +6,7 @@
 import struct Foundation.Data
 
 public class Database {
-
     let path: String
-
     let pointer: OpaquePointer
 
     private let writeOption: WriteOption
@@ -49,7 +47,7 @@ public extension Database {
             }
 
             var errorPointer: UnsafeMutablePointer<Int8>? = nil
-            leveldb_put(pointer, writeOption.pointer, key, key.count, unsafePointer, value.count, &errorPointer)
+            leveldb_put(pointer, writeOption.pointer, key, key.utf8.count, unsafePointer, value.count, &errorPointer)
             if let error = errorPointer {
                 let message = String(cString: error)
                 defer { leveldb_free(error) }
@@ -61,7 +59,7 @@ public extension Database {
     func get(key: String) throws -> Data? {
         var valueLength: Int = 0
         var errorPointer: UnsafeMutablePointer<Int8>? = nil
-        guard let dataPtr = leveldb_get(pointer, readOption.pointer, key, key.count, &valueLength, &errorPointer) else {
+        guard let dataPtr = leveldb_get(pointer, readOption.pointer, key, key.utf8.count, &valueLength, &errorPointer) else {
             if let error = errorPointer {
                 let message = String(cString: error)
                 defer { leveldb_free(error) }
@@ -78,7 +76,7 @@ public extension Database {
 
     func delete(key: String) throws {
         var errorPointer: UnsafeMutablePointer<Int8>? = nil
-        leveldb_delete(pointer, writeOption.pointer, key, key.count, &errorPointer)
+        leveldb_delete(pointer, writeOption.pointer, key, key.utf8.count, &errorPointer)
         if let error = errorPointer {
             let message = String(cString: error)
             throw LevelDBError.delete(message: message)

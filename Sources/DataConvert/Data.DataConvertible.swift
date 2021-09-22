@@ -6,7 +6,11 @@
 import Foundation
 
 extension Data: DataConvertible {
-    public init?(data: Data) { self = data }
+    public init(data: Data) throws {
+        self = data
+    }
 
-    public var toData: Data { self }
+    public func toData() throws -> Data {
+        self
+    }
 }

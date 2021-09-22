@@ -3,16 +3,16 @@
 // Copyright (c) 2020 Mengyu Li. All rights reserved.
 //
 
-import Foundation
+import struct Foundation.Data
 
 extension Bool: DataConvertible {
-    public init?(data: Data) {
-        guard let integer = UInt8(data: data) else { return nil }
+    public init(data: Data) throws {
+         let integer = try UInt8(data: data)
         self = (integer != 0)
     }
 
-    public var toData: Data {
+    public func toData() throws -> Data {
         let value: UInt8 = self ? 1 : 0
-        return value.toData
+        return try value.toData()
     }
 }
