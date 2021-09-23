@@ -22,13 +22,14 @@ public class WriteBatch {
 }
 
 public extension WriteBatch {
-    func put(key: String, value: Data) throws {
-        try value.withUnsafeBytes { (rawBufferPointer: UnsafeRawBufferPointer) -> Void in
+    func put<Value: DataEncodable>(key: String, value: Value) throws {
+        let valueData = try value.toData()
+        try valueData.withUnsafeBytes { (rawBufferPointer: UnsafeRawBufferPointer) -> Void in
             let unsafeBufferPointer = rawBufferPointer.bindMemory(to: Int8.self)
             guard let unsafePointer = unsafeBufferPointer.baseAddress else {
                 throw LevelDBError.put(message: nil)
             }
-            leveldb_writebatch_put(pointer, key, key.utf8.count, unsafePointer, value.count)
+            leveldb_writebatch_put(pointer, key, key.utf8.count, unsafePointer, valueData.count)
         }
     }
 
@@ -42,7 +43,7 @@ public extension WriteBatch {
 }
 
 public extension WriteBatch {
-    static func +(lhs: WriteBatch, rhs: WriteBatch) -> WriteBatch {
+    static func + (lhs: WriteBatch, rhs: WriteBatch) -> WriteBatch {
         let pointer: OpaquePointer = leveldb_writebatch_create()
         leveldb_writebatch_append(pointer, lhs.pointer)
         leveldb_writebatch_append(pointer, rhs.pointer)
