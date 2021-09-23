@@ -39,15 +39,16 @@ public class Database {
 }
 
 public extension Database {
-    func put(key: String, value: Data) throws {
-        try value.withUnsafeBytes { (rawBufferPointer: UnsafeRawBufferPointer) -> Void in
+    func put<Value: DataEncodable>(key: String, value: Value) throws {
+        let valueData = try value.toData()
+        try valueData.toData().withUnsafeBytes { (rawBufferPointer: UnsafeRawBufferPointer) -> Void in
             let unsafeBufferPointer = rawBufferPointer.bindMemory(to: Int8.self)
             guard let unsafePointer = unsafeBufferPointer.baseAddress else {
                 throw LevelDBError.put(message: nil)
             }
 
             var errorPointer: UnsafeMutablePointer<Int8>? = nil
-            leveldb_put(pointer, writeOption.pointer, key, key.utf8.count, unsafePointer, value.count, &errorPointer)
+            leveldb_put(pointer, writeOption.pointer, key, key.utf8.count, unsafePointer, valueData.count, &errorPointer)
             if let error = errorPointer {
                 let message = String(cString: error)
                 defer { leveldb_free(error) }
@@ -56,10 +57,10 @@ public extension Database {
         }
     }
 
-    func get(key: String) throws -> Data? {
+    func get<Value: DataDecodable>(key: String) throws -> Value? {
         var valueLength: Int = 0
         var errorPointer: UnsafeMutablePointer<Int8>? = nil
-        guard let dataPtr = leveldb_get(pointer, readOption.pointer, key, key.utf8.count, &valueLength, &errorPointer) else {
+        guard let dataPointer = leveldb_get(pointer, readOption.pointer, key, key.utf8.count, &valueLength, &errorPointer) else {
             if let error = errorPointer {
                 let message = String(cString: error)
                 defer { leveldb_free(error) }
@@ -68,10 +69,10 @@ public extension Database {
             return nil
         }
         defer {
-            dataPtr.deallocate()
+            dataPointer.deallocate()
         }
-        let data = Data(bytes: dataPtr, count: valueLength)
-        return data
+        let data = Data(bytes: dataPointer, count: valueLength)
+        return try Value(data: data)
     }
 
     func delete(key: String) throws {

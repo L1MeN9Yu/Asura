@@ -47,7 +47,7 @@ public extension Database {
     /// - returns: Returns the value as an instance of type `V` or `nil` if no value exists for the key or the type could not be instatiated with the data.
     /// - note: You can always use `Foundation.Data` as the type. In such case, `nil` will only be returned if there is no value for the key.
     /// - throws: an error if operation fails. See `Error`.
-    func get<V: DataConvertible, K: DataConvertible>(key: K) throws -> V? {
+    func get<V: DataDecodable, K: DataEncodable>(key: K) throws -> V? {
         var keyData = try key.toData()
         return try keyData.withUnsafeMutableBytes { keyBufferPointer -> V? in
             let keyPointer = keyBufferPointer.baseAddress
@@ -55,16 +55,16 @@ public extension Database {
 
             // The database will manage the memory for the returned value.
             // http://104.237.133.194/doc/group__mdb.html#ga8bf10cd91d3f3a83a34d04ce6b07992d
-            var dataVal = MDB_val()
+            var dataValue = MDB_val()
             var getStatus: Int32 = 0
             try Transaction(environment: environment, flags: .readOnly) { transaction -> Transaction.Action in
-                getStatus = mdb_get(transaction.pointer, id, &keyVal, &dataVal)
+                getStatus = mdb_get(transaction.pointer, id, &keyVal, &dataValue)
                 return .commit
             }
 
             guard getStatus != MDB_NOTFOUND else { return nil }
             guard getStatus == 0 else { throw LMDBError(returnCode: getStatus) }
-            let data = Data(bytes: dataVal.mv_data, count: dataVal.mv_size)
+            let data = Data(bytes: dataValue.mv_data, count: dataValue.mv_size)
 
             return try V(data: data)
         }
@@ -74,7 +74,7 @@ public extension Database {
     /// - parameter key: The key to check for.
     /// - returns: `true` if the database contains a value for the key. `false` otherwise.
     /// - throws: an error if operation fails. See `Error`.
-    func exists<K: DataConvertible>(key: K) throws -> Bool {
+    func exists<K: DataEncodable>(key: K) throws -> Bool {
         let data: Data? = try get(key: key)
         return data != nil
     }
@@ -84,7 +84,7 @@ public extension Database {
     /// - parameter key: The key which the data will be associated with. The key must conform to `DataConvertible`. Passing an empty key will cause an error to be thrown.
     /// - parameter flags: An optional set of flags that modify the behavior if the put operation. Default is [] (empty set).
     /// - throws: an error if operation fails. See `Error`.
-    func put<V: DataConvertible, K: DataConvertible>(value: V, forKey key: K, flags: PutFlags = []) throws {
+    func put<V: DataEncodable, K: DataEncodable>(value: V, forKey key: K, flags: PutFlags = []) throws {
         var keyData = try key.toData()
         var valueData = try value.toData()
 
@@ -111,7 +111,7 @@ public extension Database {
     /// Deletes a value from the database.
     /// - parameter key: The key identifying the database entry to be deleted. The key must conform to `DataConvertible`. Passing an empty key will cause an error to be thrown.
     /// - throws: an error if operation fails. See `Error`.
-    func deleteValue<K: DataConvertible>(forKey key: K) throws {
+    func deleteValue<K: DataEncodable>(forKey key: K) throws {
         var keyData = try key.toData()
         try keyData.withUnsafeMutableBytes { keyBufferPointer in
             let keyPointer = keyBufferPointer.baseAddress
@@ -170,7 +170,7 @@ public extension Database {
 }
 
 extension Database: Equatable {
-    public static func ==(lhs: Database, rhs: Database) -> Bool {
+    public static func == (lhs: Database, rhs: Database) -> Bool {
         lhs.environment.pointer == rhs.environment.pointer && lhs.id == rhs.id
     }
 }
