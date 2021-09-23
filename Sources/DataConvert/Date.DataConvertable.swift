@@ -3,8 +3,8 @@
 // Copyright (c) 2020 Mengyu Li. All rights reserved.
 //
 
-import struct Foundation.Date
 import struct Foundation.Data
+import struct Foundation.Date
 import struct Foundation.TimeInterval
 
 extension Date: DataConvertible {

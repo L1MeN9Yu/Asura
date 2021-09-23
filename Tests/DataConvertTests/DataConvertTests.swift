@@ -1,5 +1,5 @@
-import XCTest
 @testable import DataConvert
+import XCTest
 
 final class DataConvertTests: XCTestCase {
     func testStringCount() {

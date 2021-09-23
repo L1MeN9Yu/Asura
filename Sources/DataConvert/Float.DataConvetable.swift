@@ -17,7 +17,7 @@ extension Float: DataConvertible {
 
     public func toData() throws -> Data {
         let littleEndian = bitPattern.littleEndian
-        return withUnsafePointer(to: littleEndian) { (pointer) -> Data in
+        return withUnsafePointer(to: littleEndian) { pointer -> Data in
             Data(buffer: UnsafeBufferPointer(start: pointer, count: 1))
         }
     }

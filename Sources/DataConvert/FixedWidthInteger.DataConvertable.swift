@@ -5,8 +5,8 @@
 
 import Foundation
 
-extension FixedWidthInteger where Self: DataConvertible {
-    public init(data: Data) throws {
+public extension FixedWidthInteger where Self: DataConvertible {
+    init(data: Data) throws {
         guard data.count == MemoryLayout<Self>.size else {
             throw DataConvertError.fixedWidthIntegerDecode
         }
@@ -14,9 +14,9 @@ extension FixedWidthInteger where Self: DataConvertible {
         self = .init(littleEndian: littleEndian)
     }
 
-    public func toData() throws -> Data {
+    func toData() throws -> Data {
         let littleEndian = littleEndian
-        return withUnsafePointer(to: littleEndian) { (pointer) -> Data in
+        return withUnsafePointer(to: littleEndian) { pointer -> Data in
             Data(buffer: UnsafeBufferPointer(start: pointer, count: 1))
         }
     }

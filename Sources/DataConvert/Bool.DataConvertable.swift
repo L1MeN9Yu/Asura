@@ -7,7 +7,7 @@ import struct Foundation.Data
 
 extension Bool: DataConvertible {
     public init(data: Data) throws {
-         let integer = try UInt8(data: data)
+        let integer = try UInt8(data: data)
         self = (integer != 0)
     }
 
