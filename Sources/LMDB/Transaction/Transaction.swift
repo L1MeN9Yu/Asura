@@ -23,7 +23,7 @@ public struct Transaction {
         var flags = flags
         if environment.flags.contains(.readOnly) { flags.insert(.readOnly) }
         // http://lmdb.tech/doc/group__mdb.html#gad7ea55da06b77513609efebd44b26920
-        var pointerOptional: OpaquePointer? = nil
+        var pointerOptional: OpaquePointer?
         let txnStatus = mdb_txn_begin(environment.pointer, parent?.pointer, UInt32(flags.rawValue), &pointerOptional)
         guard txnStatus == 0 else { throw LMDBError(returnCode: txnStatus) }
         guard let pointer = pointerOptional else { throw LMDBError.nullPointer }
@@ -58,7 +58,7 @@ extension Transaction {
 }
 
 extension Transaction: Equatable {
-    public static func ==(lhs: Transaction, rhs: Transaction) -> Bool {
+    public static func == (lhs: Transaction, rhs: Transaction) -> Bool {
         lhs.pointer == rhs.pointer
     }
 }

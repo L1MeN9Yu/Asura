@@ -8,8 +8,7 @@ public enum Repairer {}
 
 public extension Repairer {
     static func repair(path: String, option: Option) throws {
-
-        var lastErrorPtr: UnsafeMutablePointer<Int8>? = nil
+        var lastErrorPtr: UnsafeMutablePointer<Int8>?
         leveldb_repair_db(option.pointer, path, &lastErrorPtr)
 
         if let error = lastErrorPtr {

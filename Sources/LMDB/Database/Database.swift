@@ -84,7 +84,7 @@ public extension Database {
     /// - parameter key: The key which the data will be associated with. The key must conform to `DataConvertible`. Passing an empty key will cause an error to be thrown.
     /// - parameter flags: An optional set of flags that modify the behavior if the put operation. Default is [] (empty set).
     /// - throws: an error if operation fails. See `Error`.
-    func put<V: DataEncodable, K: DataEncodable>(value: V, forKey key: K, flags: PutFlags = []) throws {
+    func put<V: DataEncodable, K: DataEncodable>(key: K, value: V, flags: PutFlags = []) throws {
         var keyData = try key.toData()
         var valueData = try value.toData()
 

@@ -26,5 +26,5 @@ public class WriteOption {
 }
 
 public extension WriteOption {
-    static let `default`: WriteOption = WriteOption()
+    static let `default` = WriteOption()
 }

@@ -21,7 +21,7 @@ public class Environment {
         self.flags = flags
 
         // Prepare the environment.
-        var pointerOptional: OpaquePointer? = nil
+        var pointerOptional: OpaquePointer?
         let envCreateStatus = mdb_env_create(&pointerOptional)
         guard envCreateStatus == 0 else { throw LMDBError(returnCode: envCreateStatus) }
         guard let pointer = pointerOptional else { throw LMDBError.nullPointer }
@@ -103,7 +103,7 @@ public extension Environment {
 }
 
 extension Environment: Equatable {
-    public static func ==(lhs: Environment, rhs: Environment) -> Bool {
+    public static func == (lhs: Environment, rhs: Environment) -> Bool {
         lhs.pointer == rhs.pointer
     }
 }
