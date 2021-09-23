@@ -93,8 +93,10 @@ public extension Database {
             throw LevelDBError.writeBatch(message: message)
         }
     }
+}
 
-    func iterator(reverse: Bool = false, startKey: String? = nil, action: (_ key: String, _ value: Data, _ stop: inout Bool) -> Void) throws {
+public extension Database {
+    func iterator(reverse: Bool = false, startKey: String? = nil, action: (_ key: String, _ valueData: Data, _ stop: inout Bool) -> Void) throws {
         let iterator = leveldb_create_iterator(pointer, readOption.pointer)
         defer { leveldb_iter_destroy(iterator) }
 
@@ -123,10 +125,10 @@ public extension Database {
         while leveldb_iter_valid(iterator) != 0 {
             var keyLength = 0
             var valueLength = 0
-            if let keyPtr = leveldb_iter_key(iterator, &keyLength),
-               let valuePtr = leveldb_iter_value(iterator, &valueLength) {
-                let keyData = Data(bytes: keyPtr, count: keyLength)
-                let value = Data(bytes: valuePtr, count: valueLength)
+            if let keyPointer = leveldb_iter_key(iterator, &keyLength),
+               let valuePointer = leveldb_iter_value(iterator, &valueLength) {
+                let keyData = Data(bytes: keyPointer, count: keyLength)
+                let value = Data(bytes: valuePointer, count: valueLength)
                 if let key = String(data: keyData, encoding: .utf8) {
                     var stop: Bool = false
                     action(key, value, &stop)

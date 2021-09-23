@@ -20,17 +20,21 @@ public class Option {
     public let blockSize: size_t
     public let blockRestartInterval: CInt
     public let maxFileSize: size_t
+    public let cache: Cache?
 
     let pointer: OpaquePointer
 
-    public init(createIfMissing: Bool = true,
-                errorIfExists: Bool = false,
-                paranoidChecks: Bool = false,
-                writeBufferSize: size_t = 4 * 1024 * 1024,
-                maxOpenFiles: CInt = 1000,
-                blockSize: size_t = 4 * 1024,
-                blockRestartInterval: CInt = 16,
-                maxFileSize: size_t = 2 * 1024 * 1024) {
+    public init(
+        createIfMissing: Bool = true,
+        errorIfExists: Bool = false,
+        paranoidChecks: Bool = false,
+        writeBufferSize: size_t = 4 * 1024 * 1024,
+        maxOpenFiles: CInt = 1000,
+        blockSize: size_t = 4 * 1024,
+        blockRestartInterval: CInt = 16,
+        maxFileSize: size_t = 2 * 1024 * 1024,
+        cache: Cache? = nil
+    ) {
         self.createIfMissing = createIfMissing
         self.errorIfExists = errorIfExists
         self.paranoidChecks = paranoidChecks
@@ -39,6 +43,7 @@ public class Option {
         self.blockSize = blockSize
         self.blockRestartInterval = blockRestartInterval
         self.maxFileSize = maxFileSize
+        self.cache = cache
 
         pointer = leveldb_options_create()
         leveldb_options_set_create_if_missing(pointer, self.createIfMissing.uint8)
@@ -46,6 +51,7 @@ public class Option {
         leveldb_options_set_paranoid_checks(pointer, self.paranoidChecks.uint8)
         leveldb_options_set_write_buffer_size(pointer, self.writeBufferSize)
         leveldb_options_set_max_open_files(pointer, self.maxOpenFiles)
+        cache.map { leveldb_options_set_cache(pointer, $0.pointer) }
         leveldb_options_set_block_size(pointer, self.blockSize)
         leveldb_options_set_block_restart_interval(pointer, self.blockRestartInterval)
         leveldb_options_set_max_file_size(pointer, self.maxFileSize)
@@ -58,4 +64,5 @@ public class Option {
 
 public extension Option {
     static let `default` = Option()
+    static let defaultLRU = Option(cache: Cache(type: .lru(capacity: 2 * 1024 * 1024)))
 }
