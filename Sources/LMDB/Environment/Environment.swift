@@ -3,12 +3,12 @@
 // Copyright (c) 2020 Mengyu Li. All rights reserved.
 //
 
-import CLMDB
+@_implementationOnly import CLMDB
 import Foundation
 
 public class Environment {
-    internal private(set) var pointer: OpaquePointer?
-    internal private(set) var flags: Flags
+    private(set) var pointer: OpaquePointer
+    private(set) var flags: Flags
 
     /// Initializes a new environment instance. An environment may contain 0 or more databases.
     /// - parameter path: The path to the folder in which the environment should be created. The folder must exist and be writeable.
@@ -21,26 +21,28 @@ public class Environment {
         self.flags = flags
 
         // Prepare the environment.
-        let envCreateStatus = mdb_env_create(&pointer)
-
-        guard envCreateStatus == 0 else { throw Error(returnCode: envCreateStatus) }
+        var pointerOptional: OpaquePointer? = nil
+        let envCreateStatus = mdb_env_create(&pointerOptional)
+        guard envCreateStatus == 0 else { throw LMDBError(returnCode: envCreateStatus) }
+        guard let pointer = pointerOptional else { throw LMDBError.nullPointer }
+        self.pointer = pointer
 
         // Set the maximum number of named databases that can be opened in the environment.
         if let maxDBs = maxDBs {
             let envSetMaxDBsStatus = mdb_env_set_maxdbs(pointer, MDB_dbi(maxDBs))
-            guard envSetMaxDBsStatus == 0 else { throw Error(returnCode: envSetMaxDBsStatus) }
+            guard envSetMaxDBsStatus == 0 else { throw LMDBError(returnCode: envSetMaxDBsStatus) }
         }
 
         // Set the maximum number of threads/reader slots for the environment.
         if let maxReaders = maxReaders {
             let envSetMaxReadersStatus = mdb_env_set_maxreaders(pointer, maxReaders)
-            guard envSetMaxReadersStatus == 0 else { throw Error(returnCode: envSetMaxReadersStatus) }
+            guard envSetMaxReadersStatus == 0 else { throw LMDBError(returnCode: envSetMaxReadersStatus) }
         }
 
         // Set the size of the memory map.
         if let mapSize = mapSize {
             let envSetMapSizeStatus = mdb_env_set_mapsize(pointer, mapSize)
-            guard envSetMapSizeStatus == 0 else { throw Error(returnCode: envSetMapSizeStatus) }
+            guard envSetMapSizeStatus == 0 else { throw LMDBError(returnCode: envSetMapSizeStatus) }
         }
 
         // Open the environment.
@@ -49,13 +51,18 @@ public class Environment {
 
         let envOpenStatus = mdb_env_open(pointer, path.cString(using: .utf8), UInt32(flags.rawValue), fileMode)
 
-        guard envOpenStatus == 0 else { throw Error(returnCode: envOpenStatus) }
+        guard envOpenStatus == 0 else { throw LMDBError(returnCode: envOpenStatus) }
     }
 
-    deinit {
-        // Close the handle when environment is deallocated.
-        mdb_env_close(pointer)
+    internal init(pointer: OpaquePointer) throws {
+        self.pointer = pointer
+        var flags: UInt32 = 0
+        let ret = mdb_env_get_flags(pointer, &flags)
+        guard ret == 0 else { throw LMDBError(returnCode: ret) }
+        self.flags = Environment.Flags(rawValue: Int32(flags))
     }
+
+    deinit { mdb_env_close(pointer) }
 }
 
 // MARK: - Database
@@ -92,5 +99,11 @@ public extension Environment {
             return .commit
         })
         return State(stat: statPointer.pointee)
+    }
+}
+
+extension Environment: Equatable {
+    public static func ==(lhs: Environment, rhs: Environment) -> Bool {
+        lhs.pointer == rhs.pointer
     }
 }

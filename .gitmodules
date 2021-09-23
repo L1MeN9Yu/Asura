@@ -2,3 +2,6 @@
 	path = ExternalLibrary/lmdb
 	url = https://github.com/LMDB/lmdb.git
 	branch = mdb.RE/0.9
+[submodule "ExternalLibrary/leveldb"]
+	path = ExternalLibrary/leveldb
+	url = https://github.com/google/leveldb.git

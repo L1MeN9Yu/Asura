@@ -3,7 +3,7 @@
 // Copyright (c) 2020 Mengyu Li. All rights reserved.
 //
 
-import CLMDB
+@_implementationOnly import CLMDB
 import Foundation
 
 public struct State {

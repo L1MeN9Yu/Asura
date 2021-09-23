@@ -3,9 +3,9 @@
 // Copyright (c) 2020 Mengyu Li. All rights reserved.
 //
 
-import CLMDB
+@_implementationOnly import CLMDB
 
-public struct Version { private init() {} }
+public enum Version {}
 
 public extension Version {
     static let string = {

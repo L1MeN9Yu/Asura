@@ -1,0 +1,17 @@
+name: Releaes
+
+on:
+  push:
+    tags:
+      - "*.*.*"
+
+jobs:
+  create_release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Release
+        uses: softprops/action-gh-release@v1
