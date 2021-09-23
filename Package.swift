@@ -55,7 +55,7 @@ let package = Package(
         ], publicHeadersPath: "header", cSettings: [
             .define("LEVELDB_IS_BIG_ENDIAN", to: "0"),
             .define("LEVELDB_PLATFORM_POSIX", to: "1"),
-            .define("HAVE_FULLFSYNC", to: "1"),
+            .define("HAVE_FULLFSYNC", to: "1", .when(platforms: [.iOS, .macOS, .macCatalyst])),
             .headerSearchPath("./"),
             .headerSearchPath("include/"),
         ]),

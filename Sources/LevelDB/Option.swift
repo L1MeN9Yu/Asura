@@ -3,7 +3,13 @@
 //
 
 @_implementationOnly import CLevelDB
+#if os(iOS) || os(macOS) || os(watchOS) || os(tvOS)
 import typealias Darwin.C.stddef.size_t
+#elseif os(Linux)
+import Glibc
+#else
+#error("not support")
+#endif
 
 public class Option {
     public let createIfMissing: Bool

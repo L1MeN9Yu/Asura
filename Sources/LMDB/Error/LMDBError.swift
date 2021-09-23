@@ -4,6 +4,19 @@
 //
 
 @_implementationOnly import CLMDB
+#if os(iOS) || os(macOS) || os(watchOS) || os(tvOS)
+import var Darwin.C.errno.EPERM
+import var Darwin.C.errno.ENOENT
+import var Darwin.C.errno.EINVAL
+import var Darwin.C.errno.ENOSPC
+import var Darwin.C.errno.ENOMEM
+import var Darwin.C.errno.EIO
+import var Darwin.C.errno.EACCES
+#elseif os(Linux)
+import Glibc
+#else
+#error("not support")
+#endif
 
 public enum LMDBError: Error {
     // LMDB defined errors.
