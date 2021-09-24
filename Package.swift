@@ -7,6 +7,7 @@ let package = Package(
     name: "Asura",
     products: [
         .library(name: "LMDB", targets: ["LMDB"]),
+        .library(name: "LevelDB", targets: ["LevelDB"]),
     ],
     targets: [
         .target(name: "CLMDB"),
