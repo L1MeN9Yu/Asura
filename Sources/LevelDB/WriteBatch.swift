@@ -24,7 +24,7 @@ public class WriteBatch {
 public extension WriteBatch {
     func put<Value: DataEncodable>(key: String, value: Value) throws {
         let valueData = try value.toData()
-        try valueData.withUnsafeBytes { (rawBufferPointer: UnsafeRawBufferPointer) -> Void in
+        try valueData.withUnsafeBytes { (rawBufferPointer: UnsafeRawBufferPointer) in
             let unsafeBufferPointer = rawBufferPointer.bindMemory(to: Int8.self)
             guard let unsafePointer = unsafeBufferPointer.baseAddress else {
                 throw LevelDBError.put(message: nil)

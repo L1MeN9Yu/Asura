@@ -8,23 +8,13 @@
 public enum Version {}
 
 public extension Version {
-    static let string = {
-        "\(major).\(minor).\(patch)"
-    }()
+    static let string = "\(major).\(minor).\(patch)"
 
-    static let major = {
-        MDB_VERSION_MAJOR
-    }()
+    static let major = MDB_VERSION_MAJOR
 
-    static let minor = {
-        MDB_VERSION_MINOR
-    }()
+    static let minor = MDB_VERSION_MINOR
 
-    static let patch = {
-        MDB_VERSION_PATCH
-    }()
+    static let patch = MDB_VERSION_PATCH
 
-    static let date = {
-        MDB_VERSION_DATE
-    }()
+    static let date = MDB_VERSION_DATE
 }

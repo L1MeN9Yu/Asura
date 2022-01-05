@@ -41,7 +41,7 @@ public class Database {
 public extension Database {
     func put<Value: DataEncodable>(key: String, value: Value) throws {
         let valueData = try value.toData()
-        try valueData.toData().withUnsafeBytes { (rawBufferPointer: UnsafeRawBufferPointer) -> Void in
+        try valueData.toData().withUnsafeBytes { (rawBufferPointer: UnsafeRawBufferPointer) in
             let unsafeBufferPointer = rawBufferPointer.bindMemory(to: Int8.self)
             guard let unsafePointer = unsafeBufferPointer.baseAddress else {
                 throw LevelDBError.put(message: nil)
@@ -58,7 +58,7 @@ public extension Database {
     }
 
     func get<Value: DataDecodable>(key: String) throws -> Value? {
-        var valueLength: Int = 0
+        var valueLength = 0
         var errorPointer: UnsafeMutablePointer<Int8>?
         guard let dataPointer = leveldb_get(pointer, readOption.pointer, key, key.utf8.count, &valueLength, &errorPointer) else {
             if let error = errorPointer {
@@ -131,7 +131,7 @@ public extension Database {
                 let keyData = Data(bytes: keyPointer, count: keyLength)
                 let value = Data(bytes: valuePointer, count: valueLength)
                 if let key = String(data: keyData, encoding: .utf8) {
-                    var stop: Bool = false
+                    var stop = false
                     action(key, value, &stop)
 
                     if stop { break }

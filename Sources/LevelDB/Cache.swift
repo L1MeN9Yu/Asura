@@ -7,7 +7,7 @@
 public class Cache {
     let pointer: OpaquePointer
 
-    init(type: Type) {
+    public init(type: Type) {
         switch type {
         case .lru(let capacity):
             pointer = leveldb_cache_create_lru(capacity)
