@@ -56,10 +56,9 @@ public class Environment {
 
     internal init(pointer: OpaquePointer) throws {
         self.pointer = pointer
-        var flags: UInt32 = 0
-        let ret = mdb_env_get_flags(pointer, &flags)
-        guard ret == 0 else { throw LMDBError(returnCode: ret) }
-        self.flags = Environment.Flags(rawValue: Int32(flags))
+        flags = []
+        let flags = try getFlags()
+        self.flags = flags
     }
 
     deinit { mdb_env_close(pointer) }
@@ -105,6 +104,49 @@ public extension Environment {
         if result != 0 {
             throw LMDBError(returnCode: result)
         }
+    }
+}
+
+// MARK: - Flags
+
+public extension Environment {
+    /// Set addition flags to `Environment`
+    /// - Parameter flags: the flags
+    /// - Throws: LMDBError
+    /// - Note: if several threads change the flags at the same time, the result is undefined.
+    func add(flags: Flags) throws {
+        let result = mdb_env_set_flags(pointer, UInt32(flags.rawValue), 1)
+        if result != 0 {
+            throw LMDBError(returnCode: result)
+        }
+        let flags = try getFlags()
+        self.flags = flags
+    }
+
+    /// Unset addition flags to `Environment`
+    /// - Parameter flags: the flags
+    /// - Throws: LMDBError
+    /// - Note: if several threads change the flags at the same time, the result is undefined.
+    func remove(flags: Flags) throws {
+        let result = mdb_env_set_flags(pointer, UInt32(flags.rawValue), 0)
+        if result != 0 {
+            throw LMDBError(returnCode: result)
+        }
+        let flags = try getFlags()
+        self.flags = flags
+    }
+
+    /// Get flags from `Environment`
+    /// - Returns: the flags
+    /// - Throws: LMDBError
+    func getFlags() throws -> Flags {
+        var value: UInt32 = 0
+        let result = mdb_env_get_flags(pointer, &value)
+        guard result == 0 else {
+            throw LMDBError(returnCode: result)
+        }
+        let flags = Flags(rawValue: Int32(value))
+        return flags
     }
 }
 
