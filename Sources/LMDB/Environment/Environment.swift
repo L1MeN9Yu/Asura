@@ -77,6 +77,21 @@ public extension Environment {
     }
 }
 
+// MARK: - Sync
+
+public extension Environment {
+    /// Flush the data buffers to disk.
+    /// - Parameter force: If true, force a synchronous flush. Otherwise if the environment has the `noSync` flag set the flushes will be omitted, and with `mapAsync` they will be asynchronous.
+    func sync(force: Bool) throws {
+        let result = mdb_env_sync(pointer, force ? 1 : 0)
+        if result != 0 {
+            throw LMDBError(returnCode: result)
+        }
+    }
+}
+
+public extension Environment {}
+
 // MARK: - Info
 
 public extension Environment {
