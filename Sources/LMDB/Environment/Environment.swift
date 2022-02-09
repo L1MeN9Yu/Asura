@@ -82,6 +82,7 @@ public extension Environment {
 public extension Environment {
     /// Flush the data buffers to disk.
     /// - Parameter force: If true, force a synchronous flush. Otherwise if the environment has the `noSync` flag set the flushes will be omitted, and with `mapAsync` they will be asynchronous.
+    /// - Throws: LMDBError
     func sync(force: Bool) throws {
         let result = mdb_env_sync(pointer, force ? 1 : 0)
         if result != 0 {
@@ -90,7 +91,22 @@ public extension Environment {
     }
 }
 
-public extension Environment {}
+// MARK: - Copy
+
+public extension Environment {
+    /// Copy an LMDB environment to the specified path
+    /// - Parameters:
+    ///   - path: The directory in which the copy will reside. This directory must already exist and be writable but must otherwise be empty.
+    ///   - compact: if true. Perform compaction while copying: omit free pages and sequentially renumber all pages in output. This option consumes more CPU and runs more slowly than the default. Currently it fails if the environment has suffered a page leak.
+    /// - Throws: LMDBError
+    func copy(path: String, compact: Bool) throws {
+        let flag = UInt32(compact ? MDB_CP_COMPACT : 0)
+        let result = mdb_env_copy2(pointer, path, flag)
+        if result != 0 {
+            throw LMDBError(returnCode: result)
+        }
+    }
+}
 
 // MARK: - Info
 
