@@ -1,0 +1,16 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "DataConvert",
+        "repositoryURL": "https://github.com/L1MeN9Yu/DataConvert.git",
+        "state": {
+          "branch": null,
+          "revision": "80321bcda52eca42602368d60b928dbe3d5e356c",
+          "version": "1.0.0"
+        }
+      }
+    ]
+  },
+  "version": 1
+}

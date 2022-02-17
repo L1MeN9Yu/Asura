@@ -21,9 +21,15 @@ let package = Package(
         .library(name: "LMDB", targets: ["LMDB"]),
         .library(name: "LevelDB", targets: ["LevelDB"]),
     ],
+    dependencies: [
+        .package(url: "https://github.com/L1MeN9Yu/DataConvert.git", from: "1.0.0"),
+    ],
     targets: [
         .target(name: "CLMDB"),
-        .target(name: "LMDB", dependencies: ["CLMDB", "DataConvert"]),
+        .target(name: "LMDB", dependencies: [
+            .target(name: "CLMDB"),
+            .product(name: "DataConvert", package: "DataConvert"),
+        ]),
         .testTarget(name: "LMDBTest", dependencies: ["LMDB"]),
 
         .target(name: "CLevelDB", exclude: [
@@ -72,11 +78,11 @@ let package = Package(
             .headerSearchPath("./"),
             .headerSearchPath("include/"),
         ]),
-        .target(name: "LevelDB", dependencies: ["CLevelDB", "DataConvert"]),
+        .target(name: "LevelDB", dependencies: [
+            .target(name: "CLevelDB"),
+            .product(name: "DataConvert", package: "DataConvert"),
+        ]),
         .testTarget(name: "LevelDBTests", dependencies: ["LevelDB"]),
-
-        .target(name: "DataConvert"),
-        .testTarget(name: "DataConvertTests", dependencies: ["DataConvert"]),
     ],
     cLanguageStandard: CLanguageStandard.c11,
     cxxLanguageStandard: CXXLanguageStandard.gnucxx14
